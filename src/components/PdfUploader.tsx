@@ -1,7 +1,7 @@
 'use client'
 
 import '../../public/css/PdfUploader.css';
-import { faSun, faMoon, faFileExcel, faFileCsv } from '@fortawesome/free-solid-svg-icons';
+import { faFileExcel, faFileCsv } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 import { useDropzone } from 'react-dropzone';
@@ -12,38 +12,40 @@ import React, { useState } from 'react';
 GlobalWorkerOptions.workerSrc = '../../js/pdf.worker.mjs';
 
 const PdfUploader = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<string[][]>([]);
   const [csvData, setCsvData] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  const onDrop = (acceptedFiles) => {
+  const onDrop = (acceptedFiles: any[]) => {
     const file = acceptedFiles[0];
     const reader = new FileReader();
 
     reader.onload = async (e) => {
       const buffer = e.target?.result;
-      const pdf = await getDocument({ data: buffer }).promise;
-      const numPages = pdf.numPages;
-      let fullText = '';
 
-      for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-        const page = await pdf.getPage(pageNum);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item) => item.str).join(' ');
-        fullText += pageText + '\n';
+      if (buffer) {
+        const pdf = await getDocument({ data: buffer }).promise;
+        const numPages = pdf.numPages;
+        let fullText = '';
+
+        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map((item) => item.str).join(' ');
+          fullText += pageText + '\n';
+        }
+
+        const rows = fullText.split('\n').map((row) => row.split(' '));
+        setData(rows);
+
+        const csv = Papa.unparse(rows);
+        setCsvData(csv);
       }
-
-      const rows = fullText.split('\n').map((row) => row.split(' '));
-      setData(rows);
-
-      const csv = Papa.unparse(rows);
-      setCsvData(csv);
     };
 
     reader.readAsArrayBuffer(file);
   };
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: 'application/pdf' });
+  const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: `${['application/pdf']}` });
 
   const exportToExcel = () => {
     const ws = XLSX.utils.aoa_to_sheet(data);
