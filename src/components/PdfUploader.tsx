@@ -9,13 +9,13 @@ import * as Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import React, { useState } from 'react';
 
-GlobalWorkerOptions.workerSrc = '../../js/pdf.worker.mjs';
+GlobalWorkerOptions.workerSrc = '/js/pdf.worker.mjs';
 
-const PdfUploader = () => {
+const PdfUploader: React.FC = () => {
   const [data, setData] = useState<string[][]>([]);
-  const [csvData, setCsvData] = useState('');
+  const [csvData, setCsvData] = useState<string>('');
 
-  const onDrop = (acceptedFiles: any[]) => {
+  const onDrop = async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     const reader = new FileReader();
 
@@ -45,7 +45,7 @@ const PdfUploader = () => {
     reader.readAsArrayBuffer(file);
   };
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: `${['application/pdf']}` });
+  const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: ['application/pdf'] });
 
   const exportToExcel = () => {
     const ws = XLSX.utils.aoa_to_sheet(data);
