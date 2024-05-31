@@ -30,7 +30,13 @@ const PdfUploader: React.FC = () => {
         for (let pageNum = 1; pageNum <= numPages; pageNum++) {
           const page = await pdf.getPage(pageNum);
           const textContent = await page.getTextContent();
-          const pageText = textContent.items.map((item) => item.str).join(' ');
+          const pageText = textContent.items.map((item) => {
+            if ('str' in item) {
+              return item.str;
+            } else {
+              return '';
+            }
+          }).join(' ');
           fullText += pageText + '\n';
         }
 
@@ -45,7 +51,10 @@ const PdfUploader: React.FC = () => {
     reader.readAsArrayBuffer(file);
   };
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: ['application/pdf'] });
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: { 'application/pdf': ['.pdf'] }
+  });
 
   const exportToExcel = () => {
     const ws = XLSX.utils.aoa_to_sheet(data);
