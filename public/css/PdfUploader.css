@@ -1,0 +1,32 @@
+/* Styles for dark mode */
+.dark-mode {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+/* Styles for light mode */
+.light-mode {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* Gradient color for light mode */
+.light-mode {
+    background: linear-gradient(45deg, #DB3D55, #CFAD46, #9ABF37, #15CE59);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
